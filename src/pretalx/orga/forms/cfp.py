@@ -53,13 +53,15 @@ class CfPSettingsForm(
             self.fields[
                 "mail_on_new_submission"
             ].help_text += f' (<a href="mailto:{obj.email}">{obj.email}</a>)'
-        self.length_fields = ["title", "abstract", "description", "biography"]
+        self.length_fields = ["title", "abstract", "description", "biography", "avatar_source", "avatar_license"]
         self.request_require_fields = [
             "abstract",
             "description",
             "notes",
             "biography",
             "avatar",
+            "avatar_source",
+            "avatar_license",
             "additional_speaker",
             "availabilities",
             "do_not_record",
@@ -73,14 +75,14 @@ class CfPSettingsForm(
             self.fields[field_name] = forms.IntegerField(
                 required=False,
                 min_value=0,
-                initial=obj.cfp.fields[attribute].get("min_length"),
+                initial=obj.cfp.fields.get(attribute,{"min_length":None}).get("min_length"),
             )
             self.fields[field_name].widget.attrs["placeholder"] = ""
             field_name = f"cfp_{attribute}_max_length"
             self.fields[field_name] = forms.IntegerField(
                 required=False,
                 min_value=0,
-                initial=obj.cfp.fields[attribute].get("max_length"),
+                initial=obj.cfp.fields.get(attribute,{"max_length":None}).get("max_length"),
             )
             self.fields[field_name].widget.attrs["placeholder"] = ""
         for attribute in self.request_require_fields:
@@ -466,7 +468,7 @@ Please follow this URL to use the code:
 
   {url}
 
-I'm looking forward to your proposal!
+I’m looking forward to your proposal!
 {name}"""
         ).format(
             url=instance.urls.cfp_url.full(),
